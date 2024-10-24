@@ -20,7 +20,34 @@ export const registerUser = createAsyncThunk(
   async (
     { email, name, password, navigate },
     { dispatch, rejectWithValue }
-  ) => {}
+  ) => {
+    try {
+      const res = await api.post("/user", { email, name, password });
+      // 성공
+      // 1. 성공 토스트 메세지 보여주기
+      // uiSlice에 있는 reducer호출 ... dispatch(reducer)
+      // reducer에서 payload객체 {message: "~", status: "~"}사용 가능
+      dispatch(
+        showToastMessage({
+          message: "회원가입을 성공했습니다!",
+          status: "success",
+        })
+      );
+      // 2. 로그인페이지 리다이렉트
+      navigate("/login");
+    } catch (error) {
+      // 실패
+      // 1. 실패 토스트 메세지 보여주기
+      dispatch(
+        showToastMessage({
+          message: "회원가입에 실패했습니다!",
+          status: "error",
+        })
+      );
+      // 2. 에러값을 저장
+      return rejectWithValue();
+    }
+  }
 );
 
 export const loginWithToken = createAsyncThunk(
