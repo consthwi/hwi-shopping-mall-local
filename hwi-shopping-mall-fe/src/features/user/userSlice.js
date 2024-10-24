@@ -35,6 +35,7 @@ export const registerUser = createAsyncThunk(
       );
       // 2. 로그인페이지 리다이렉트
       navigate("/login");
+      return res.data.data;
     } catch (error) {
       // 실패
       // 1. 실패 토스트 메세지 보여주기
@@ -45,7 +46,7 @@ export const registerUser = createAsyncThunk(
         })
       );
       // 2. 에러값을 저장
-      return rejectWithValue();
+      return rejectWithValue(error.error); // 다시 확인하기
     }
   }
 );
@@ -64,13 +65,27 @@ const userSlice = createSlice({
     registrationError: null,
     success: false,
   },
+  // 동기적 호출
   reducers: {
     clearErrors: (state) => {
       state.loginError = null;
       state.registrationError = null;
     },
   },
-  extraReducers: (builder) => {},
+  // 주로 비동기적 호출 (외부라이브러리에 의한 호출)
+  extraReducers: (builder) => {
+    builder
+      .addCase(registerUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(registerUser.fulfilled, (state) => {
+        state.loading = false;
+        state.registrationError = null;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.registrationError = action.payload;
+      });
+  },
 });
 export const { clearErrors } = userSlice.actions;
 export default userSlice.reducer;

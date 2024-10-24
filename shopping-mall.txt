@@ -1,3 +1,5 @@
+◆be .env
+
 # LOCAL_DB_ADDRESS=mongodb://localhost:27017/hwi-shopping-mall
 
 MONGODB_URI_PROD=mongodb+srv://syaron9364:inSvjAoHWzDDshad@hwicluster.cb0dk.mongodb.net/hwi-shopping-mall
@@ -5,3 +7,8 @@ MONGODB_URI_PROD=mongodb+srv://syaron9364:inSvjAoHWzDDshad@hwicluster.cb0dk.mong
 PORT=5000
 
 JWT_SECRET_KEY=helee
+
+
+◆fe .env
+
+REACT_APP_LOCAL_BACKEND=http://localhost:5000/api
