@@ -4,11 +4,27 @@ import { showToastMessage } from "../common/uiSlice";
 import api from "../../utils/api";
 import { initialCart } from "../cart/cartSlice";
 
+// 로그인 버튼 클릭 시 요청받는 API
 export const loginWithEmail = createAsyncThunk(
   "user/loginWithEmail",
-  async ({ email, password }, { rejectWithValue }) => {}
+  async ({ email, password }, { rejectWithValue }) => {
+    try {
+      const res = await api.post("/auth/login", { email, password });
+      // => authController.loginWithEmail로부터 data: {status, user, token} 받음.
+
+      // 1. 성공
+      // 1-1. Loginpage에서 main으로 리다이렉트
+      // 1-2. 성공 시 data return, fulfilled 대기
+      return res.data;
+    } catch (error) {
+      // 2. 실패
+      // 2-1. 실패한 에러값 return, reject 대기
+      return rejectWithValue(error.error);
+    }
+  }
 );
 
+// 구글로그인 버튼 클릭 시 요청받는 API
 export const loginWithGoogle = createAsyncThunk(
   "user/loginWithGoogle",
   async (token, { rejectWithValue }) => {}
@@ -87,6 +103,18 @@ const userSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.registrationError = action.payload;
+      })
+      .addCase(loginWithEmail.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(loginWithEmail.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.loginError = null;
+      })
+      .addCase(loginWithEmail.rejected, (state, action) => {
+        state.loading = true;
+        state.loginError = action.payload; // error.error
       });
   },
 });

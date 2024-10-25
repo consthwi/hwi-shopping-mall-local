@@ -30,6 +30,7 @@ const Login = () => {
     //구글 로그인 하기
   };
 
+  // 로그인한 user가 있다면 메인으로 리다이렉트... userSlice
   if (user) {
     navigate("/");
   }
