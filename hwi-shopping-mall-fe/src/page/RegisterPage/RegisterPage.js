@@ -20,8 +20,9 @@ const RegisterPage = () => {
   const [passwordError, setPasswordError] = useState("");
   const [policyError, setPolicyError] = useState(false);
   const { registrationError } = useSelector((state) => state.user);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const register = (event) => {
+  const register = async (event) => {
     event.preventDefault();
     const { name, email, password, confirmPassword, policy } = formData;
     const checkConfirmPassword = password === confirmPassword;
@@ -35,7 +36,14 @@ const RegisterPage = () => {
     }
     setPasswordError("");
     setPolicyError(false);
-    dispatch(registerUser({ name, email, password, navigate }));
+    setIsLoading(true);
+    try {
+      await dispatch(registerUser({ name, email, password, navigate }));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false); // 요청 완료 후 로딩 상태 false로 설정
+    }
   };
 
   const handleChange = (event) => {
@@ -113,8 +121,8 @@ const RegisterPage = () => {
             isInvalid={policyError}
           />
         </Form.Group>
-        <Button variant="danger" type="submit">
-          회원가입
+        <Button variant="danger" type="submit" disabled={isLoading}>
+          {isLoading ? "처리 중..." : "회원가입"}
         </Button>
       </Form>
     </Container>

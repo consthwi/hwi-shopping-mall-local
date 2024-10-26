@@ -11,11 +11,12 @@ export const loginWithEmail = createAsyncThunk(
     try {
       const res = await api.post("/auth/login", { email, password });
       // => authController.loginWithEmail로부터 data: {status, user, token} 받음.
-
+      sessionStorage.setItem("token", res.data.token);
+      return res.data;
       // 1. 성공
       // 1-1. Loginpage에서 main으로 리다이렉트
-      // 1-2. 성공 시 data return, fulfilled 대기
-      return res.data;
+      // 1-2. session storage에 토큰 저장
+      // 1-3. 성공 시 data return, fulfilled 대기
     } catch (error) {
       // 2. 실패
       // 2-1. 실패한 에러값 return, reject 대기
@@ -27,10 +28,24 @@ export const loginWithEmail = createAsyncThunk(
 // 구글로그인 버튼 클릭 시 요청받는 API
 export const loginWithGoogle = createAsyncThunk(
   "user/loginWithGoogle",
-  async (token, { rejectWithValue }) => {}
+  async (_, { rejectWithValue }) => {
+    // api에서 header에 `Bearer token`으로 세팅
+    try {
+      const res = await api.get("/user/me");
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.error);
+    }
+  }
 );
 
-export const logout = () => (dispatch) => {};
+export const logout = () => (dispatch) => {
+  // 토큰 정보를 지운다.
+  sessionStorage.removeItem("token");
+  // reducer user정보 null로 변경 필요
+  // userSlice의 동기적 logout action 요청
+  dispatch(userSlice.actions.logout());
+};
 
 // 회원가입 버튼 클릭 시 요청받는 API
 export const registerUser = createAsyncThunk(
@@ -72,7 +87,16 @@ export const registerUser = createAsyncThunk(
 
 export const loginWithToken = createAsyncThunk(
   "user/loginWithToken",
-  async (_, { rejectWithValue }) => {}
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.get("/user/me");
+      // => userController.getUser요청, token id 해당하는 유저 data return
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.error);
+      // => but, 뒤에서 이루어지는 작업이기 때문에 rejected를 고려할 필요는 없다.
+    }
+  }
 );
 
 const userSlice = createSlice({
@@ -89,6 +113,10 @@ const userSlice = createSlice({
     clearErrors: (state) => {
       state.loginError = null;
       state.registrationError = null;
+    },
+    logout: (state) => {
+      state.loginError = null;
+      state.user = null;
     },
   },
   // 주로 비동기적 호출 (외부라이브러리에 의한 호출)
@@ -115,6 +143,9 @@ const userSlice = createSlice({
       .addCase(loginWithEmail.rejected, (state, action) => {
         state.loading = true;
         state.loginError = action.payload; // error.error
+      })
+      .addCase(loginWithToken.fulfilled, (state, action) => {
+        state.user = action.payload.user; // 다시
       });
   },
 });

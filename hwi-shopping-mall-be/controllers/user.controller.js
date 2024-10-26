@@ -27,4 +27,17 @@ userController.createUser = async (req, res) => {
   }
 };
 
+// validation한 token으로 유저 return
+userController.getUser = async (req, res) => {
+  try {
+    const { userId } = req;
+    const user = await User.findById(userId);
+    if (user) {
+      res.status(200).json({ status: "ok", user });
+    }
+  } catch (error) {
+    res.status(400).json({ status: "fail", error: error.message });
+  }
+};
+
 module.exports = userController;
