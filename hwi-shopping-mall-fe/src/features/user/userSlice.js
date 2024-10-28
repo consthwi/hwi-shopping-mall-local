@@ -31,11 +31,7 @@ export const loginWithGoogle = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     // api에서 header에 `Bearer token`으로 세팅
     try {
-      const res = await api.get("/user/me");
-      return res.data;
-    } catch (error) {
-      return rejectWithValue(error.error);
-    }
+    } catch (error) {}
   }
 );
 
@@ -43,7 +39,7 @@ export const logout = () => (dispatch) => {
   // 토큰 정보를 지운다.
   sessionStorage.removeItem("token");
   // reducer user정보 null로 변경 필요
-  // userSlice의 동기적 logout action 요청
+  // userSlice의 비동기적 logout action 요청
   dispatch(userSlice.actions.logout());
 };
 

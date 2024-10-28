@@ -6,7 +6,7 @@ const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 const authController = {};
 
-// login은 auth에 가까워서 authController에 더 적합.. 다시 작성
+// req의 email, password과 DB의 email, password 비교판별 => *token생성
 authController.loginWithEmail = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -27,6 +27,7 @@ authController.loginWithEmail = async (req, res) => {
   }
 };
 
+// 현재token => DB의 userId return
 authController.authenticate = async (req, res, next) => {
   try {
     const tokenString = req.headers.authorization;

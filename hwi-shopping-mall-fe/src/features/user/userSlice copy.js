@@ -16,7 +16,8 @@ export const loginWithGoogle = createAsyncThunk(
 
 export const logout = () => (dispatch) => {};
 
-// 회원가입 백엔드
+// 요청목적: DB에 user가 기입한 정보 기록 (Create)
+// 요청방법: /user, post (userController.createUser)
 // registerUser api생성 => userSlice의 extraReducer로 사용
 export const registerUser = createAsyncThunk(
   "user/registerUser",
@@ -26,6 +27,7 @@ export const registerUser = createAsyncThunk(
   ) => {
     try {
       const res = await api.post("/user", { email, name, password });
+      // 백엔드 userController.createUser 요청
       dispatch(
         showToastMessage({
           message: "회원가입이 완료되었습니다.",
@@ -54,9 +56,19 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+// 요청목적: 현재 가진 token으로 DB의 user 판별
+// 요청방법: /user/me ***get
 export const loginWithToken = createAsyncThunk(
   "user/loginWithToken",
-  async (_, { rejectWithValue }) => {}
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await get("/user/me");
+      console.log(res);
+      // return res.data.data
+    } catch (error) {
+      rejectWithValue(error.error);
+    }
+  }
 );
 
 const userSlice = createSlice({

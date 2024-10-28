@@ -53,6 +53,8 @@ const RegisterPage = () => {
     if (type === "checkbox") {
       if (policyError) setPolicyError(false);
       setFormData((prevState) => ({ ...prevState, [id]: checked }));
+
+      // setFormData((prevState)=>{ return {...prevState, [id]: checked} })
     } else {
       setFormData({ ...formData, [id]: value });
     }
