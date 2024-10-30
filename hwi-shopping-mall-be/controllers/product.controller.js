@@ -1,5 +1,6 @@
 const Product = require("../models/Product");
 
+const PAGE_SIZE = 3;
 const productController = {};
 
 productController.createProduct = async (req, res) => {
@@ -35,8 +36,28 @@ productController.createProduct = async (req, res) => {
 
 productController.getProducts = async (req, res) => {
   try {
-    const products = await Product.find({});
-    res.status(200).json({ status: "ok", data: products });
+    // serachQuery를 이용한 검색 로직
+    const { page, name } = req.query;
+    const cond = name ? { name: { $regex: name, $options: "i" } } : {};
+    let query = Product.find(cond);
+
+    // 동적인 응답 위한 객체
+    let response = { status: "ok" };
+
+    // 페이지네이션 로직
+    if (page) {
+      query.skip((page - 1) * PAGE_SIZE).limit(PAGE_SIZE);
+      // 최종 페이지 = 데이터사이즈 / PAGE_SIZE
+      const totalItemNum = await Product.find(cond).countDocuments();
+      const totalPageNum = Math.ceil(totalItemNum / PAGE_SIZE);
+      response.totalPageNum = totalPageNum;
+    }
+    // 페이지네이션 로직 end
+
+    const productList = await query.exec();
+    response.data = productList;
+
+    res.status(200).json({ response });
   } catch (error) {
     res.status(400).json({ status: "fail", error: error.message });
   }

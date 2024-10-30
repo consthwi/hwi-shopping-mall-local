@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-regular-svg-icons";
 import {
@@ -11,12 +11,15 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../features/user/userSlice";
+import { Container } from "react-bootstrap";
 
 const Navbar = ({ user }) => {
   const dispatch = useDispatch();
   const { cartItemCount } = useSelector((state) => state.cart);
-  const isMobile = window.navigator.userAgent.indexOf("Mobile") !== -1;
+  // const isMobile = window.navigator.userAgent.indexOf("Mobile") !== -1;
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [showSearchBox, setShowSearchBox] = useState(false);
+
   const menuList = [
     "여성",
     "Divided",
@@ -40,6 +43,15 @@ const Navbar = ({ user }) => {
   const handleLogout = () => {
     dispatch(logout());
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <div>
       {showSearchBox && (
@@ -127,15 +139,17 @@ const Navbar = ({ user }) => {
           <img width={100} src="/image/hm-logo.png" alt="hm-logo.png" />
         </Link>
       </div>
-      <div className="nav-menu-area">
-        <ul className="menu">
-          {menuList.map((menu, index) => (
-            <li key={index}>
-              <a href="#">{menu}</a>
-            </li>
-          ))}
-        </ul>
-        {!isMobile && ( // admin페이지에서 같은 search-box스타일을 쓰고있음 그래서 여기서 서치박스 안보이는것 처리를 해줌
+      <div>
+        <Container className="nav-menu-area">
+          {!isMobile && (
+            <ul className="menu">
+              {menuList.map((menu, index) => (
+                <li key={index}>
+                  <a href="#">{menu}</a>
+                </li>
+              ))}
+            </ul>
+          )}
           <div className="search-box landing-search-box ">
             <FontAwesomeIcon icon={faSearch} />
             <input
@@ -144,7 +158,17 @@ const Navbar = ({ user }) => {
               onKeyPress={onCheckEnter}
             />
           </div>
-        )}
+          {/* {!isMobile && ( // admin페이지에서 같은 search-box스타일을 쓰고있음 그래서 여기서 서치박스 안보이는것 처리를 해줌
+            <div className="search-box landing-search-box ">
+              <FontAwesomeIcon icon={faSearch} />
+              <input
+                type="text"
+                placeholder="제품검색"
+                onKeyPress={onCheckEnter}
+              />
+            </div>
+          )} */}
+        </Container>
       </div>
     </div>
   );
