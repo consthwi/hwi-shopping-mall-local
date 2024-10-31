@@ -39,10 +39,9 @@ productController.getProducts = async (req, res) => {
     // serachQuery를 이용한 검색 로직
     const { page, name } = req.query;
     const cond = name ? { name: { $regex: name, $options: "i" } } : {};
-    let query = Product.find(cond);
-
     // 동적인 응답 위한 객체
     let response = { status: "ok" };
+    let query = Product.find(cond);
 
     // 페이지네이션 로직
     if (page) {
@@ -55,9 +54,9 @@ productController.getProducts = async (req, res) => {
     // 페이지네이션 로직 end
 
     const productList = await query.exec();
-    response.data = productList;
+    response.products = productList;
 
-    res.status(200).json({ response });
+    res.status(200).json(response);
   } catch (error) {
     res.status(400).json({ status: "fail", error: error.message });
   }
