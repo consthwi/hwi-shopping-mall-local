@@ -14,4 +14,12 @@ router.post(
 // 전체상품 가져오기
 router.get("/", productController.getProducts);
 
+// 상품 수정하기
+// router.put(
+//   "/:id",
+//   authController.authenticate,
+//   authController.checkAdminPermission,
+//   productController.updateProducts
+// );
+
 module.exports = router;

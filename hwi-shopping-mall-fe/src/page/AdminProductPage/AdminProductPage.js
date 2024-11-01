@@ -40,7 +40,7 @@ const AdminProductPage = () => {
   // + 상품검색하기... url param읽어서 검색조건 추가
   useEffect(() => {
     dispatch(getProductList({ ...searchQuery }));
-  }, [query]);
+  }, [dispatch, query]);
 
   useEffect(() => {
     // 상품 검색하기..
@@ -54,6 +54,13 @@ const AdminProductPage = () => {
     // console.log("query: ", query);
     navigate("?" + query);
   }, [searchQuery]);
+
+  // 상품생성이 끝나고 showDialog가 닫힐 경우, 상품호출 다시
+  useEffect(() => {
+    if (!showDialog) {
+      dispatch(getProductList(searchQuery));
+    }
+  }, [showDialog, searchQuery, dispatch]);
 
   const deleteItem = (id) => {
     //아이템 삭제하가ㅣ
